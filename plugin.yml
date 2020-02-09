@@ -1,0 +1,4 @@
+name: MCWebChat
+version: 0.3.4
+main: com.github.xaxys.mcwebchat.Main
+author: xa

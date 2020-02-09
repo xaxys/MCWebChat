@@ -1,0 +1,10 @@
+Format: '[&a&l网页聊天&r]<&3&l[公民]%PLAYER%&r>%WORD%'
+Format2: '[&a&l网页聊天&r]&6[&3&l[公民]%SENDER%&6 -> &3&l[公民]%RECEIVER%]&r%WORD%'
+
+Host: 127.0.0.1
+Port: 3306
+Database: 'chatroom'
+User: 'chat'
+Password: '000...'
+
+Delay: 500
