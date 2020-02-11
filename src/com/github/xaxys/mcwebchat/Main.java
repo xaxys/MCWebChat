@@ -80,14 +80,12 @@ public class Main extends JavaPlugin {
 	}
 	
 	class PlayerSender implements Sender {
-		String name;
 		Player sender;
 		public PlayerSender(Player p) {
-			name = p.getName();
 			sender = p;
 		}
 		public String getName() {
-			return name;
+			return sender.getName();
 		}
 		public String getDisplayName() {
 			return sender.getDisplayName();
@@ -140,9 +138,11 @@ public class Main extends JavaPlugin {
 		}
 		
 		private void Update() {
-			Player player = getOnlinePlayer(name);
-			PlayerSender ps = (player == null) ? null : new PlayerSender(player);
-			this.p = ps;
+			if (p instanceof PlayerSender) {
+				Player player = getOnlinePlayer(name);
+				PlayerSender ps = (player == null) ? null : new PlayerSender(player);
+				this.p = ps;
+			}
 		}
 
 	}
