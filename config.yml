@@ -1,5 +1,6 @@
-Format: '[&a&l网页聊天&r]<&3&l[公民]%PLAYER%&r>%WORD%'
-Format2: '[&a&l网页聊天&r]&6[&3&l[公民]%SENDER%&6 -> &3&l[公民]%RECEIVER%]&r%WORD%'
+Format: '[&a&l网页聊天&r]<&3&l[公民]%PLAYER%&r> %WORD%'
+Format2: '[&a&l网页聊天&r]&6[&3&l[公民]%SENDER%&6 -> %RECEIVER%&6]&r %WORD%'
+Format3: '&r[&a&l网页&r]&3&l[公民]%PLAYER%&r'
 
 Host: 127.0.0.1
 Port: 3306
@@ -7,4 +8,4 @@ Database: 'chatroom'
 User: 'chat'
 Password: '000...'
 
-Delay: 500
+Delay: 1000

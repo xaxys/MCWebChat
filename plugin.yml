@@ -1,4 +1,13 @@
 name: MCWebChat
-version: 0.3.4
+version: 0.4.7
 main: com.github.xaxys.mcwebchat.Main
 author: xa
+commands:
+  msg:
+    description: Sends a private message to the specified player.(Replace Essentials)
+    usage: /<command> <to> <message>
+    aliases: [w,m,t,pm,tell,whisper]
+  r:
+    description: Quickly reply to the last player to message you.
+    usage: /<command> <message>
+    aliases: [reply]

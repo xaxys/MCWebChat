@@ -4,5 +4,6 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="lib" path="D:/Spigot-Core/mysql-connector-java-5.1.39-bin.jar"/>
 	<classpathentry kind="lib" path="D:/Spigot-Core/spigot-1.12.2.jar"/>
+	<classpathentry kind="lib" path="D:/插件库/EssentialsX-2.15.0.2.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

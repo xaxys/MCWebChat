@@ -51,26 +51,34 @@ public class DataBase {
 	}
 
 	public void InsertMessage(String name, String message) {
-		try {
-			String sql = String.format("SELECT id FROM user WHERE username='%s'", name);
-			ResultSet rs = statement.executeQuery(sql);
-			if (!rs.next()) {
-				rs.close();
-				Date date = new Date();
-				String s = sdf.format(date);
-				String sql2 = String.format("INSERT INTO user (username,created_at,updated_at,registered) VALUES ('%s','%s','%s',0)", name, s, s);
-				statement.executeUpdate(sql2);
-				rs = statement.executeQuery(sql);
-			} else {
-				String id = rs.getString("id");
-				rs.close();
-				Date date = new Date();
-				String s = sdf.format(date);
-				sql = String.format(
-						"INSERT INTO message (sender_id,receiver_id,content,send_time,created_at,updated_at,frommc) VALUES ('%s', '%s', '%s', '%s', '%s', '%s', 1)",
-						id, "0", message, Long.toString(date.getTime() / 1000L), s, s);
-				statement.executeUpdate(sql);
+		InsertMessage(name, null, message);
+	}
+
+	public void InsertMessage(String name, String target, String message) {
+		String id = GetUserId(name);
+		if (id == null) {
+			CreateUser(name);
+			id = GetUserId(name);
+		}
+		String targetid = "0";
+		if (target != null) {
+			targetid = GetUserId(target);
+			if (targetid == null) {
+				CreateUser(target);
+				targetid = GetUserId(target);
 			}
+		}
+		InsertMessageById(id, targetid, message);
+	}
+
+	public void InsertMessageById(String id, String targetid, String message) {
+		try {
+			Date date = new Date();
+			String s = sdf.format(date);
+			String sql = String.format(
+					"INSERT INTO message (sender_id,receiver_id,content,send_time,created_at,updated_at,frommc) VALUES ('%s', '%s', '%s', '%s', '%s', '%s', 1)",
+					id, targetid, message, Long.toString(date.getTime() / 1000L), s, s);
+			statement.executeUpdate(sql);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		} catch (Exception e) {
@@ -78,9 +86,39 @@ public class DataBase {
 		}
 	}
 
+	public String GetUserId(String name) {
+		String id = null;
+		try {
+			String sql = String.format("SELECT id FROM user WHERE username='%s'", name);
+			ResultSet rs;
+			rs = statement.executeQuery(sql);
+			if (rs.next()) {
+				id = rs.getString("id");
+			}
+			rs.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return id;
+	}
+
+	public void CreateUser(String name) {
+		try {
+			Date date = new Date();
+			String s = sdf.format(date);
+			String sql = String.format(
+					"INSERT INTO user (username,created_at,updated_at,registered) VALUES ('%s','%s','%s',0)", name, s, s);
+			statement.executeUpdate(sql);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+
 	public Long GetMessage(Long messageId) {
 		try {
-			String sql = String.format("SELECT message.id, message.content, user.username FROM message JOIN user ON message.sender_id=user.id WHERE message.frommc=0 AND message.id > %s AND message.receiver_id=0 ORDER BY message.id", messageId.toString());
+			String sql = String.format(
+					"SELECT message.id, message.content, user.username FROM message JOIN user ON message.sender_id=user.id WHERE message.frommc=0 AND message.id > %s AND message.receiver_id=0 ORDER BY message.id",
+					messageId.toString());
 			ResultSet rs = statement.executeQuery(sql);
 			Long idx = messageId;
 			if (rs.next()) {
@@ -106,7 +144,7 @@ public class DataBase {
 					String message = rs.getString("content");
 					Player p = Bukkit.getPlayer(receiver);
 					if (p != null) {
-						p.sendMessage(Main.Format2.replace("%SENDER%", sender).replace("%RECEIVER%", receiver)
+						p.sendMessage(Main.Format2.replace("%SENDER%", sender).replace("%RECEIVER%", p.getDisplayName())
 								.replace("%WORD%", message));
 					}
 				} while (rs.next());
