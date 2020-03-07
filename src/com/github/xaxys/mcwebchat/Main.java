@@ -155,7 +155,7 @@ public class Main extends JavaPlugin {
 		}
 	}
 
-	public void sendMessage(Chatter from, Chatter to, String message) {
+	private void sendMessage(Chatter from, Chatter to, String message) {
 		if (!to.Exist()) {
 			from.p.sendMessage("§4错误:§c 该玩家不在线/不存在！");
 			return;
@@ -175,7 +175,7 @@ public class Main extends JavaPlugin {
 		}
 	}
 
-	public void replayMessage(Chatter from, String message) throws SQLException {
+	private void replyMessage(Chatter from, String message) throws SQLException {
 		if (map.containsKey(from.name)) {
 			Chatter to = map.get(from.name);
 			sendMessage(from, to, message);
@@ -183,28 +183,36 @@ public class Main extends JavaPlugin {
 			from.p.sendMessage("§4错误:§c 你没有可回复的玩家！");
 		}
 	}
+	
+	private String combineMessage(final String[] s, final int start) {
+		StringBuilder sb = new StringBuilder(s[start]);
+		for (int i = start + 1; i < s.length; i++) {
+			sb.append(" " + s[i]);
+		}
+		return sb.toString();
+	}
 
 	public boolean onCommand(final CommandSender sender, final Command cmd, final String label, final String[] args) {
 		if (label.equalsIgnoreCase("msg") || label.equalsIgnoreCase("m") || label.equalsIgnoreCase("w")
 				|| label.equalsIgnoreCase("whisper") || label.equalsIgnoreCase("t") || label.equalsIgnoreCase("tell")) {
 			if (sender instanceof Player) {
-				if (args.length == 2) {
+				if (args.length >= 2) {
 					try {
 						Chatter from = new Chatter(sender.getName());
 						Chatter to = new Chatter(args[0]);
-						sendMessage(from, to, args[1]);
+						sendMessage(from, to, combineMessage(args, 1));
 					} catch (SQLException e) {
 						e.printStackTrace();
 					}
 					return true;
 				}
 				sender.sendMessage("/msg <玩家> <文本> 私聊某玩家");
-			} else if (args.length == 2) {
+			} else if (args.length >= 2) {
 				try {
 					ConsoleSender cs = new ConsoleSender(sender);
 					Chatter from = new Chatter(cs);
 					Chatter to = new Chatter(args[0]);
-					sendMessage(from, to, args[1]);
+					sendMessage(from, to, combineMessage(args, 1));
 				} catch (SQLException e) {
 					e.printStackTrace();
 				}
@@ -214,10 +222,10 @@ public class Main extends JavaPlugin {
 			}
 		} else if (label.equalsIgnoreCase("r") || label.equalsIgnoreCase("reply")) {
 			if (sender instanceof Player) {
-				if (args.length == 1) {
+				if (args.length >= 1) {
 					try {
 						Chatter from = new Chatter(sender.getName());
-						replayMessage(from, args[0]);
+						replyMessage(from, combineMessage(args, 0));
 					} catch (SQLException e) {
 						e.printStackTrace();
 					}
@@ -225,11 +233,11 @@ public class Main extends JavaPlugin {
 				}
 				sender.sendMessage("/r <文本> 回复会话");
 			} else {
-				if (args.length == 1) {
+				if (args.length >= 1) {
 					try {
 						ConsoleSender cs = new ConsoleSender(sender);
 						Chatter from = new Chatter(cs);
-						replayMessage(from, args[0]);
+						replyMessage(from, combineMessage(args, 0));
 					} catch (SQLException e) {
 						e.printStackTrace();
 					}

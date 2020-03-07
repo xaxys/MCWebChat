@@ -107,7 +107,7 @@ public class DataBase {
 			Date date = new Date();
 			String s = sdf.format(date);
 			String sql = String.format(
-					"INSERT INTO user (username,created_at,updated_at,registered) VALUES ('%s','%s','%s',0)", name, s, s);
+					"INSERT INTO user (username,created_at,updated_at,registed) VALUES ('%s','%s','%s',0)", name, s, s);
 			statement.executeUpdate(sql);
 		} catch (SQLException e) {
 			e.printStackTrace();
