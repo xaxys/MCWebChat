@@ -30,13 +30,11 @@ public class Main extends JavaPlugin {
 
 	public void onEnable() {
 		getLogger().info("§d§lMCWebChat §9§l插件已启用！§6作者：xa");
-		Config.setFolder();
 		Conf = getConfig();
-		InfoConf = Config.getInfoConfig();
 		loadConfig();
 		Bukkit.getPluginManager().registerEvents(PlayerChat.getListener(), this);
 		Bukkit.getPluginManager().registerEvents(NotifyInfo.getListener(), this);
-		ShowMessage sm = new ShowMessage(InfoConf.getLong("LastMessageId", 0L));
+		ShowMessage sm = new ShowMessage(DataBase.getDB().GetLastMessageId());
 		getServer().getScheduler().runTaskAsynchronously(this, sm);
 	}
 
@@ -49,8 +47,6 @@ public class Main extends JavaPlugin {
 	public void onDisable() {
 		Abort = true;
 		Bukkit.getScheduler().cancelTasks(this);
-		InfoConf.set("LastMessageId", ShowMessage.getShowMessage().getMessageId());
-		Config.saveInfoConfig(InfoConf);
 	}
 
 	private final HashMap<String, Chatter> map = new HashMap<>();

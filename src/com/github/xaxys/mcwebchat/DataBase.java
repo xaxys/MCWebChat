@@ -17,6 +17,7 @@ public class DataBase {
 	private String url;
 	private String user;
 	private String password;
+	private Connection conn;
 	private Statement statement;
 	private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
@@ -35,7 +36,7 @@ public class DataBase {
 		password = Main.Conf.getString("Password");
 		try {
 			Class.forName(driver);
-			Connection conn = DriverManager.getConnection(url, user, password);
+			conn = DriverManager.getConnection(url, user, password);
 			if (!conn.isClosed())
 				Main.PLUGIN.getLogger().info("Succeeded connecting to the Database!");
 			statement = conn.createStatement();
@@ -48,6 +49,21 @@ public class DataBase {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+	
+	private void reConnect() {
+		try {
+			if (conn.isClosed()) {
+				Main.PLUGIN.getLogger().info("Database connection has been closed!");
+				Main.PLUGIN.getLogger().info("Reconnecting...");
+				Connect();
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
 	}
 
 	public void InsertMessage(String name, String message) {
@@ -81,6 +97,7 @@ public class DataBase {
 			statement.executeUpdate(sql);
 		} catch (SQLException e) {
 			e.printStackTrace();
+			reConnect();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -98,6 +115,9 @@ public class DataBase {
 			rs.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
+			reConnect();
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 		return id;
 	}
@@ -111,7 +131,29 @@ public class DataBase {
 			statement.executeUpdate(sql);
 		} catch (SQLException e) {
 			e.printStackTrace();
+			reConnect();
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
+	}
+	
+	public Long GetLastMessageId() {
+		Long lastId = 0L;
+		try {
+			String sql = "SELECT COUNT(*) FROM message";
+			ResultSet rs;
+			rs = statement.executeQuery(sql);
+			if (rs.next()) {
+				lastId = rs.getLong("COUNT(*)");
+			}
+			rs.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+			reConnect();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return lastId;
 	}
 
 	public Long GetMessage(Long messageId) {
@@ -156,6 +198,7 @@ public class DataBase {
 				return idx2;
 		} catch (SQLException e) {
 			e.printStackTrace();
+			reConnect();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
