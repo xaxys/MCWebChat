@@ -61,8 +61,7 @@ public class Main extends JavaPlugin {
 	}
 	
 	public void stopTask() {
-		sm.Abort = true;
-		Bukkit.getScheduler().cancelTasks(this);
+		sm.Stop();
 	}
 
 	private final HashMap<String, Chatter> map = new HashMap<>();

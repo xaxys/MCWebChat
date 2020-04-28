@@ -1,10 +1,14 @@
 package com.github.xaxys.mcwebchat;
 
+import org.bukkit.Bukkit;
+import org.bukkit.scheduler.BukkitTask;
+
 public class ShowMessage{
 	
 	private Long messageId = 0L;
 	private Long delay = 1000L;
-	public boolean Abort;
+	private boolean Abort;
+	private BukkitTask task;
 	
 	public ShowMessage(Long Id, Long Delay) {
 		this.messageId = Id;
@@ -12,7 +16,7 @@ public class ShowMessage{
 	}
 	
 	public void Start() {
-		Main.PLUGIN.getServer().getScheduler().runTaskAsynchronously(Main.PLUGIN, () -> {
+		task = Main.PLUGIN.getServer().getScheduler().runTaskAsynchronously(Main.PLUGIN, () -> {
 			Main.PLUGIN.getLogger().info("启动获取消息线程:" + Thread.currentThread().getName());
 			while (!Abort) {
 				if (Main.PLUGIN.DebugMode) {
@@ -27,5 +31,10 @@ public class ShowMessage{
 			}
 			Main.PLUGIN.getLogger().info("终止获取消息线程:" + Thread.currentThread().getName());
 		});
+	}
+	
+	public void Stop() {
+		Abort = true;
+		Bukkit.getScheduler().cancelTask(task.getTaskId());
 	}
 }
