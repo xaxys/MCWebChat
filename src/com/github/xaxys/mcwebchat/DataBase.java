@@ -44,8 +44,6 @@ public class DataBase {
 		} catch (ClassNotFoundException e) {
 			System.out.println("Sorry,can`t find the Driver!");
 			e.printStackTrace();
-		} catch (SQLException e) {
-			e.printStackTrace();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -58,12 +56,9 @@ public class DataBase {
 				Main.PLUGIN.getLogger().info("Reconnecting...");
 				Connect();
 			}
-		} catch (SQLException e) {
-			e.printStackTrace();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
 	}
 
 	public void InsertMessage(String name, String message) {
@@ -105,14 +100,11 @@ public class DataBase {
 
 	public String GetUserId(String name) {
 		String id = null;
-		try {
-			String sql = String.format("SELECT id FROM user WHERE username='%s'", name);
-			ResultSet rs;
-			rs = statement.executeQuery(sql);
+		String sql = String.format("SELECT id FROM user WHERE username='%s'", name);
+		try(ResultSet rs = statement.executeQuery(sql)) {
 			if (rs.next()) {
 				id = rs.getString("id");
 			}
-			rs.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
 			reConnect();
@@ -139,14 +131,11 @@ public class DataBase {
 	
 	public Long GetLastMessageId() {
 		Long lastId = 0L;
-		try {
-			String sql = "SELECT COUNT(*) FROM message";
-			ResultSet rs;
-			rs = statement.executeQuery(sql);
+		String sql = "SELECT COUNT(*) FROM message";
+		try(ResultSet rs = statement.executeQuery(sql)) {
 			if (rs.next()) {
 				lastId = rs.getLong("COUNT(*)");
 			}
-			rs.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
 			reConnect();
@@ -157,30 +146,35 @@ public class DataBase {
 	}
 
 	public Long GetMessage(Long messageId) {
-		try {
-			String sql = String.format(
-					"SELECT message.id, message.content, user.username FROM message JOIN user ON message.sender_id=user.id WHERE message.frommc=0 AND message.id > %s AND message.receiver_id=0 ORDER BY message.id",
-					messageId.toString());
-			ResultSet rs = statement.executeQuery(sql);
-			Long idx = messageId;
+		//处理公聊信息
+		Long idx = messageId;
+		String sql = String.format(
+				"SELECT message.id, message.content, user.username FROM message JOIN user ON message.sender_id=user.id WHERE message.frommc=0 AND message.id > %s AND message.receiver_id=0 ORDER BY message.id",
+				messageId.toString());
+		try(ResultSet rs = statement.executeQuery(sql)) {
 			if (rs.next()) {
 				do {
-					idx = rs.getLong("id");
 					String name = rs.getString("username");
 					String message = rs.getString("content");
-					Bukkit.broadcastMessage(Main.Format.replace("%PLAYER%", name).replace("%WORD%", message));
+					Bukkit.broadcastMessage(Main.Format1.replace("%PLAYER%", name).replace("%WORD%", message));
 				} while (rs.next());
-			}
-			rs.close();
+				idx = rs.getLong("id");
+			} 
+		} catch (SQLException e) {
+			e.printStackTrace();
+			reConnect();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 
-			String sql2 = String.format(
-					"SELECT message.id, message.content , a.username AS sender, b.username AS receiver FROM message JOIN user as a ON message.sender_id=a.id JOIN user as b ON message.receiver_id=b.id WHERE message.frommc=0 AND message.id > %s ORDER BY message.id",
-					messageId.toString());
-			rs = statement.executeQuery(sql2);
-			Long idx2 = messageId;
+		//处理私聊信息
+		Long idx2 = messageId;
+		sql = String.format(
+				"SELECT message.id, message.content , a.username AS sender, b.username AS receiver FROM message JOIN user as a ON message.sender_id=a.id JOIN user as b ON message.receiver_id=b.id WHERE message.frommc=0 AND message.id > %s ORDER BY message.id",
+				messageId.toString());
+		try(ResultSet rs = statement.executeQuery(sql)) {
 			if (rs.next()) {
 				do {
-					idx = rs.getLong("id");
 					String sender = rs.getString("sender");
 					String receiver = rs.getString("receiver");
 					String message = rs.getString("content");
@@ -190,18 +184,15 @@ public class DataBase {
 								.replace("%WORD%", message));
 					}
 				} while (rs.next());
+				idx2 = rs.getLong("id");
 			}
-			rs.close();
-			if (idx > idx2)
-				return idx;
-			else
-				return idx2;
 		} catch (SQLException e) {
 			e.printStackTrace();
 			reConnect();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		return null;
+		
+		return Math.max(idx, idx2);
 	}
 }

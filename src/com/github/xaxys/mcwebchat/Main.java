@@ -7,20 +7,19 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.Configuration;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class Main extends JavaPlugin {
 
-	public boolean Abort = false;
-	public boolean DEBUG = false;
 	public static Main PLUGIN;
 	public static Configuration Conf;
-	public static FileConfiguration InfoConf;
-	public static String Format;
+	public static String Format1;
 	public static String Format2;
 	public static String Format3;
+	public static Long Delay;
+	public boolean DebugMode;
+	private ShowMessage sm;
 
 	public void onLoad() {
 		getLogger().info("§d§lMCWebChat §9§l插件已加载！§6作者：xa");
@@ -30,22 +29,39 @@ public class Main extends JavaPlugin {
 
 	public void onEnable() {
 		getLogger().info("§d§lMCWebChat §9§l插件已启用！§6作者：xa");
-		Conf = getConfig();
 		loadConfig();
 		Bukkit.getPluginManager().registerEvents(PlayerChat.getListener(), this);
 		Bukkit.getPluginManager().registerEvents(NotifyInfo.getListener(), this);
-		ShowMessage sm = new ShowMessage(DataBase.getDB().GetLastMessageId());
-		getServer().getScheduler().runTaskAsynchronously(this, sm);
+		startTask();
+	}
+	
+	public void onDisable() {
+		stopTask();
 	}
 
 	public void loadConfig() {
-		Format = getConfig().getString("Format").replace("&", "§");
-		Format2 = getConfig().getString("Format2").replace("&", "§");
-		Format3 = getConfig().getString("Format3").replace("&", "§");
+		reloadConfig();
+		Conf = getConfig();
+		DebugMode = Conf.getBoolean("DebugMode", false);
+		Delay = Conf.getLong("Delay", 1000L);
+		Format1 = Conf.getString("Format").replace("&", "§");
+		Format2 = Conf.getString("Format2").replace("&", "§");
+		Format3 = Conf.getString("Format3").replace("&", "§");
+		
+		System.out.println("DebugMode: " + DebugMode);
+		System.out.println("Delay: " + Delay);
+		System.out.println("Format1: " + Format1);
+		System.out.println("Format2: " + Format2);
+		System.out.println("Format3: " + Format3);
 	}
-
-	public void onDisable() {
-		Abort = true;
+	
+	public void startTask() {
+		sm = new ShowMessage(DataBase.getDB().GetLastMessageId(), Delay);
+		sm.Start();
+	}
+	
+	public void stopTask() {
+		sm.Abort = true;
 		Bukkit.getScheduler().cancelTasks(this);
 	}
 
@@ -242,6 +258,10 @@ public class Main extends JavaPlugin {
 				}
 				return true;
 			}
+		} else if (label.equalsIgnoreCase("mcwebchatr")) {
+			stopTask();
+			loadConfig();
+			startTask();
 		}
 		return true;
 	}

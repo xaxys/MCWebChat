@@ -9,3 +9,5 @@ User: 'chat'
 Password: '000...'
 
 Delay: 1000
+
+DebugMode: false
