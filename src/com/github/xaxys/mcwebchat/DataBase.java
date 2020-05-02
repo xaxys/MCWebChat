@@ -158,6 +158,7 @@ public class DataBase {
 					String message = rs.getString("content");
 					Bukkit.broadcastMessage(Main.Format1.replace("%PLAYER%", name).replace("%WORD%", message));
 				} while (rs.next());
+				rs.previous();
 				idx = rs.getLong("id");
 			} 
 		} catch (SQLException e) {
@@ -184,6 +185,7 @@ public class DataBase {
 								.replace("%WORD%", message));
 					}
 				} while (rs.next());
+				rs.previous();
 				idx2 = rs.getLong("id");
 			}
 		} catch (SQLException e) {

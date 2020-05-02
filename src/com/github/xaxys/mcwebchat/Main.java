@@ -44,7 +44,7 @@ public class Main extends JavaPlugin {
 		Conf = getConfig();
 		DebugMode = Conf.getBoolean("DebugMode", false);
 		Delay = Conf.getLong("Delay", 1000L);
-		Format1 = Conf.getString("Format").replace("&", "§");
+		Format1 = Conf.getString("Format1").replace("&", "§");
 		Format2 = Conf.getString("Format2").replace("&", "§");
 		Format3 = Conf.getString("Format3").replace("&", "§");
 		
