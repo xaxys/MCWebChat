@@ -165,6 +165,7 @@ public class Main extends JavaPlugin {
 			map.put(p1, p2);
 		}
 	}
+	
 
 	private void sendMessage(Chatter from, Chatter to, String message) {
 		if (!to.Exist()) {
@@ -190,6 +191,7 @@ public class Main extends JavaPlugin {
 		if (map.containsKey(from.name)) {
 			Chatter to = map.get(from.name);
 			sendMessage(from, to, message);
+			addMap(to.name, from);
 		} else {
 			from.p.sendMessage("§4错误:§c 你没有可回复的玩家！");
 		}
@@ -209,7 +211,8 @@ public class Main extends JavaPlugin {
 			if (sender instanceof Player) {
 				if (args.length >= 2) {
 					try {
-						Chatter from = new Chatter(sender.getName());
+						Sender p = new PlayerSender((Player)sender);
+						Chatter from = new Chatter(p);
 						Chatter to = new Chatter(args[0]);
 						sendMessage(from, to, combineMessage(args, 1));
 					} catch (SQLException e) {
@@ -235,7 +238,8 @@ public class Main extends JavaPlugin {
 			if (sender instanceof Player) {
 				if (args.length >= 1) {
 					try {
-						Chatter from = new Chatter(sender.getName());
+						Sender p = new PlayerSender((Player)sender);
+						Chatter from = new Chatter(p);
 						replyMessage(from, combineMessage(args, 0));
 					} catch (SQLException e) {
 						e.printStackTrace();
@@ -266,11 +270,9 @@ public class Main extends JavaPlugin {
 	}
 	
 	private Player getOnlinePlayer(String name) {
-		for (Player p : Bukkit.getOnlinePlayers()) {
-			if (p.getName().equalsIgnoreCase(name)) {
-				return p;
-			}
-		}
-		return null;
+		return Bukkit.getOnlinePlayers().parallelStream()
+				.filter(p -> p.getName().equalsIgnoreCase(name))
+				.findFirst()
+				.orElse(null);
 	}
 }

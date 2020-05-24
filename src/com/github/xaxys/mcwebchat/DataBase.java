@@ -152,15 +152,14 @@ public class DataBase {
 				"SELECT message.id, message.content, user.username FROM message JOIN user ON message.sender_id=user.id WHERE message.frommc=0 AND message.id > %s AND message.receiver_id=0 ORDER BY message.id",
 				messageId.toString());
 		try(ResultSet rs = statement.executeQuery(sql)) {
-			if (rs.next()) {
-				do {
-					String name = rs.getString("username");
-					String message = rs.getString("content");
-					Bukkit.broadcastMessage(Main.Format1.replace("%PLAYER%", name).replace("%WORD%", message));
-				} while (rs.next());
-				rs.previous();
-				idx = rs.getLong("id");
-			} 
+			while (rs.next()) {
+				String name = rs.getString("username");
+				String message = rs.getString("content");
+				Bukkit.broadcastMessage(Main.Format1.replace("%PLAYER%", name).replace("%WORD%", message));
+			}
+			rs.previous();
+			Long tmp = rs.getLong("id");
+			idx = tmp != null ? tmp : idx;
 		} catch (SQLException e) {
 			e.printStackTrace();
 			reConnect();

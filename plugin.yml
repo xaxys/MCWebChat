@@ -1,5 +1,5 @@
 name: MCWebChat
-version: 0.5.8
+version: 0.5.9
 main: com.github.xaxys.mcwebchat.Main
 author: xa
 commands:
